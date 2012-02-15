@@ -204,6 +204,15 @@ class EM_Event_Post {
 					$query[] = array( 'key' => '_start_ts', 'value' => $tomorrow, 'compare' => '<=' );
 					$query[] = array( 'key' => '_end_ts', 'value' => $today, 'compare' => '>=' );
 				}
+			}elseif ($scope == "last4days"){
+				$today = strtotime(date('Y-m-d', $time));
+				$end = strtotime(date('Y-m-d',$time+60*60*24*7));
+				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] == 'event-recurring' ){
+					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$end), 'type' => 'numeric', 'compare' => 'BETWEEN');
+				}else{
+					$query[] = array( 'key' => '_start_ts', 'value' => $end, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $today, 'compare' => '>=' );
+				}
 			}elseif ($scope == "weekend"){
 				$saturday = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+6-date('w'), date('Y')));
 				$sunday = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+7-date('w'), date('Y')));
