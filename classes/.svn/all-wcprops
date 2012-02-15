@@ -1,0 +1,185 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/!svn/ver/494127/events-manager/tags/5.0.51/classes
+END
+em-event-post-admin.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-event-post-admin.php
+END
+em-location-post.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-location-post.php
+END
+em-locations.php
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-locations.php
+END
+em-bookings-table.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-bookings-table.php
+END
+em-categories-taxonomy.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-categories-taxonomy.php
+END
+em-location-posts-admin.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-location-posts-admin.php
+END
+em-events.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-events.php
+END
+em-event-post.php
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-event-post.php
+END
+em-notices.php
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-notices.php
+END
+em-permalinks.php
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-permalinks.php
+END
+em-object.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-object.php
+END
+em-person.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-person.php
+END
+em-tickets.php
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-tickets.php
+END
+em-location.php
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-location.php
+END
+em-mailer.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-mailer.php
+END
+em-calendar.php
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-calendar.php
+END
+em-ticket-booking.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-ticket-booking.php
+END
+em-bookings.php
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-bookings.php
+END
+em-tag.php
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-tag.php
+END
+em-event-posts-admin.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-event-posts-admin.php
+END
+em-category.php
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-category.php
+END
+em-tickets-bookings.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-tickets-bookings.php
+END
+em-location-post-admin.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-location-post-admin.php
+END
+em-event.php
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-event.php
+END
+em-ticket.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-ticket.php
+END
+em-people.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-people.php
+END
+em-categories.php
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-categories.php
+END
+em-tag-taxonomy.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-tag-taxonomy.php
+END
+em-booking.php
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-booking.php
+END
+em-category-taxonomy.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/em-category-taxonomy.php
+END

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event
+END
+bookings.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/bookings.php
+END
+group.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/group.php
+END
+recurring-when.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/recurring-when.php
+END
+when.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/when.php
+END
+booking-stats.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/booking-stats.php
+END
+attributes.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/attributes.php
+END
+location.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/location.php
+END
+when-with-recurring.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event/when-with-recurring.php
+END

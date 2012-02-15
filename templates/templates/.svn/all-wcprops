@@ -1,0 +1,125 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates
+END
+tag-single.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/tag-single.php
+END
+category-single.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/category-single.php
+END
+categories-list.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/categories-list.php
+END
+my-bookings.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/my-bookings.php
+END
+event-single.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/event-single.php
+END
+locations-list.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/locations-list.php
+END
+events-search.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/events-search.php
+END
+rss.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/rss.php
+END
+ical.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/ical.php
+END
+bookings-event-printable.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/bookings-event-printable.php
+END
+calendar-full.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/calendar-full.php
+END
+map-global.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/map-global.php
+END
+events-calendar.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/events-calendar.php
+END
+events-list.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/events-list.php
+END
+calendar-small.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/calendar-small.php
+END
+csv-event-bookings.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/csv-event-bookings.php
+END
+calendar-day.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/calendar-day.php
+END
+readme.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/readme.txt
+END
+location-single.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/location-single.php
+END
+ical-event.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/templates/ical-event.php
+END

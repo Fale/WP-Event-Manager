@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/494127/events-manager/tags/5.0.51/includes/sample-placeholders
+END
+event-list-default.html
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/!svn/ver/494127/events-manager/tags/5.0.51/includes/sample-placeholders/event-list-default.html
+END
+booking-email.html
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/!svn/ver/494127/events-manager/tags/5.0.51/includes/sample-placeholders/booking-email.html
+END
+event-single.html
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/!svn/ver/494127/events-manager/tags/5.0.51/includes/sample-placeholders/event-single.html
+END
+event-single-default.html
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/!svn/ver/494127/events-manager/tags/5.0.51/includes/sample-placeholders/event-single-default.html
+END
+location-single-default.html
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/!svn/ver/494127/events-manager/tags/5.0.51/includes/sample-placeholders/location-single-default.html
+END

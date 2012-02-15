@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/phpmailer
+END
+class.phpmailer.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/phpmailer/class.phpmailer.php
+END
+class.smtp.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/494127/events-manager/tags/5.0.51/classes/phpmailer/class.smtp.php
+END

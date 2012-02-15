@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/bookingform
+END
+booking-fields.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/bookingform/booking-fields.php
+END
+tickets-list.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/bookingform/tickets-list.php
+END
+ticket-single.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/bookingform/ticket-single.php
+END
+login.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/bookingform/login.php
+END

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings
+END
+em-cancelled.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings/em-cancelled.php
+END
+em-events.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings/em-events.php
+END
+em-pending.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings/em-pending.php
+END
+em-rejected.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings/em-rejected.php
+END
+em-confirmed.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings/em-confirmed.php
+END
+em-person.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/494127/events-manager/tags/5.0.51/admin/bookings/em-person.php
+END

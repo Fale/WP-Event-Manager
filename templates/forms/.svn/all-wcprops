@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms
+END
+location-editor.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/location-editor.php
+END
+ticket-form.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/ticket-form.php
+END
+event-editor.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/event-editor.php
+END
+readme.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/readme.txt
+END
+tickets-form.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/494127/events-manager/tags/5.0.51/templates/forms/tickets-form.php
+END
