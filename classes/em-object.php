@@ -272,12 +272,13 @@ class EM_Object {
 				if( !get_option('dbem_events_current_are_past') ){
 					$conditions['scope'] .= " OR (event_start_date < CAST('$start_week' AS DATE) AND event_end_date >= CAST('$start_week' AS DATE))";
 				}
-			}elseif ($scope == "7days"){
-				$start_week = date('Y-m-d',current_time('timestamp'));
-				$end_week = date('Y-m-d',current_time('timestamp')+60*60*24*7);
-				$conditions['scope'] = " (event_start_date BETWEEN CAST('$start_week' AS DATE) AND CAST('$end_week' AS DATE))";
+			}elseif( preg_match('/(\d\d?\d?)\-days/',$scope,$matches) ){ // next x days means today, plus the following x days.
+				$days_to_add = $matches[1];
+				$today = date('Y-m-d',current_time('timestamp'));
+				$end_day = date('Y-m-d',strtotime("+$days_to_add day", current_time('timestamp')));
+				$conditions['scope'] = " (event_start_date BETWEEN CAST('$today' AS DATE) AND CAST('$end_day' AS DATE))";
 				if( !get_option('dbem_events_current_are_past') ){
-					$conditions['scope'] .= " OR (event_start_date < CAST('$start_week' AS DATE) AND event_end_date >= CAST('$start_week' AS DATE))";
+					$conditions['scope'] .= " OR (event_start_date < CAST('$end_day' AS DATE) AND event_end_date >= CAST('$today' AS DATE))";
 				}
 			}elseif ($scope == "month"){
 				$start_month = date('Y-m-d',current_time('timestamp'));
