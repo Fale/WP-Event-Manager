@@ -279,6 +279,13 @@ class EM_Object {
 				if( !get_option('dbem_events_current_are_past') ){
 					$conditions['scope'] .= " OR (event_start_date < CAST('$start_week' AS DATE) AND event_end_date >= CAST('$start_week' AS DATE))";
 				}
+			}elseif ($scope == "month"){
+				$start_month = date('Y-m-d',current_time('timestamp'));
+				$end_month = date('Y-m-t',current_time('timestamp'));
+				$conditions['scope'] = " (event_start_date BETWEEN CAST('$start_month' AS DATE) AND CAST('$end_month' AS DATE))";
+				if( !get_option('dbem_events_current_are_past') ){
+					$conditions['scope'] .= " OR (event_start_date < CAST('$start_month' AS DATE) AND event_end_date >= CAST('$start_month' AS DATE))";
+				}
 			}elseif ($scope == "next-month"){
 				$start_month_timestamp = strtotime('+1 month', current_time('timestamp')); //get the end of this month + 1 day
 				$start_month = date('Y-m-1',$start_month_timestamp);
