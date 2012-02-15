@@ -195,6 +195,16 @@ class EM_Event_Post {
 					$query[] = array( 'key' => '_start_ts', 'value' => $tomorrow, 'compare' => '<=' );
 					$query[] = array( 'key' => '_end_ts', 'value' => $tomorrow, 'compare' => '>=' );
 				}
+			}elseif ($scope == "todayandtomorrow"){
+				$today = strtotime(date('Y-m-d', $time));
+				$tomorrow = strtotime(date('Y-m-d',$time+60*60*24));
+				$conditions['scope'] = " (event_start_date BETWEEN CAST('$today' AS DATE) AND CAST('$tomorrow' AS DATE))";
+				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
+					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$tomorrow), 'type' => 'numeric', 'compare' => 'BETWEEN');
+				}else{
+					$query[] = array( 'key' => '_start_ts', 'value' => $today, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $tomorrow, 'compare' => '>=' );
+				}
 			}elseif ($scope == "month"){
 				$start_month = strtotime(date('Y-m-d',$time));
 				$end_month = strtotime(date('Y-m-t',$time));
