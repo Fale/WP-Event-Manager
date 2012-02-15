@@ -198,13 +198,21 @@ class EM_Event_Post {
 			}elseif ($scope == "todayandtomorrow"){
 				$today = strtotime(date('Y-m-d', $time));
 				$tomorrow = strtotime(date('Y-m-d',$time+60*60*24));
-				$conditions['scope'] = " (event_start_date BETWEEN CAST('$today' AS DATE) AND CAST('$tomorrow' AS DATE))";
 				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
 					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$tomorrow), 'type' => 'numeric', 'compare' => 'BETWEEN');
 				}else{
 					$query[] = array( 'key' => '_start_ts', 'value' => $today, 'compare' => '<=' );
 					$query[] = array( 'key' => '_end_ts', 'value' => $tomorrow, 'compare' => '>=' );
 				}
+			}elseif ($scope == "weekend"){
+				$saturday = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+6-date('w'), date('Y')));
+				$sunday = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+7-date('w'), date('Y')));
+				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
+					$query[] = array( 'key' => '_start_ts', 'value' => array($saturday,$sunday), 'type' => 'numeric', 'compare' => 'BETWEEN');
+				}else{
+					$query[] = array( 'key' => '_start_ts', 'value' => $saturday, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $sunday, 'compare' => '>=' );
+				}	
 			}elseif ($scope == "month"){
 				$start_month = strtotime(date('Y-m-d',$time));
 				$end_month = strtotime(date('Y-m-t',$time));
