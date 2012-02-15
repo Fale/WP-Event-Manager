@@ -212,6 +212,15 @@ class EM_Event_Post {
 				}else{
 					$query[] = array( 'key' => '_start_ts', 'value' => $saturday, 'compare' => '<=' );
 					$query[] = array( 'key' => '_end_ts', 'value' => $sunday, 'compare' => '>=' );
+				}
+			}elseif ($scope == "week"){
+				$today = strtotime(date('Y-m-d', $time));
+				$sunday = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+7-date('w'), date('Y')));
+				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
+					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$sunday), 'type' => 'numeric', 'compare' => 'BETWEEN');
+				}else{
+					$query[] = array( 'key' => '_start_ts', 'value' => $today, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $sunday, 'compare' => '>=' );
 				}	
 			}elseif ($scope == "month"){
 				$start_month = strtotime(date('Y-m-d',$time));
