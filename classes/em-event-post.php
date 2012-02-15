@@ -201,8 +201,8 @@ class EM_Event_Post {
 				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
 					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$tomorrow), 'type' => 'numeric', 'compare' => 'BETWEEN');
 				}else{
-					$query[] = array( 'key' => '_start_ts', 'value' => $today, 'compare' => '<=' );
-					$query[] = array( 'key' => '_end_ts', 'value' => $tomorrow, 'compare' => '>=' );
+					$query[] = array( 'key' => '_start_ts', 'value' => $tomorrow, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $today, 'compare' => '>=' );
 				}
 			}elseif ($scope == "weekend"){
 				$saturday = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+6-date('w'), date('Y')));
@@ -210,8 +210,8 @@ class EM_Event_Post {
 				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
 					$query[] = array( 'key' => '_start_ts', 'value' => array($saturday,$sunday), 'type' => 'numeric', 'compare' => 'BETWEEN');
 				}else{
-					$query[] = array( 'key' => '_start_ts', 'value' => $saturday, 'compare' => '<=' );
-					$query[] = array( 'key' => '_end_ts', 'value' => $sunday, 'compare' => '>=' );
+					$query[] = array( 'key' => '_start_ts', 'value' => $sunday, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $saturday, 'compare' => '>=' );
 				}
 			}elseif ($scope == "week"){
 				$today = strtotime(date('Y-m-d', $time));
@@ -219,8 +219,8 @@ class EM_Event_Post {
 				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
 					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$sunday), 'type' => 'numeric', 'compare' => 'BETWEEN');
 				}else{
-					$query[] = array( 'key' => '_start_ts', 'value' => $today, 'compare' => '<=' );
-					$query[] = array( 'key' => '_end_ts', 'value' => $sunday, 'compare' => '>=' );
+					$query[] = array( 'key' => '_start_ts', 'value' => $sunday, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $today, 'compare' => '>=' );
 				}
 			}elseif( preg_match('/(\d\d?\d?)\-days/',$scope,$matches) ){ // next x days means today, plus the following x days.
 				$days_to_add = $matches[1];
