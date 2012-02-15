@@ -222,16 +222,16 @@ class EM_Event_Post {
 					$query[] = array( 'key' => '_start_ts', 'value' => $today, 'compare' => '<=' );
 					$query[] = array( 'key' => '_end_ts', 'value' => $sunday, 'compare' => '>=' );
 				}
-				}elseif( preg_match('/(\d\d?\d?)\-days/',$scope,$matches) ){ // next x days means today, plus the following x days.
-					$days_to_add = $matches[1];
-					$today = strtotime(date('Y-m-d',$time));
-					$end_day = strtotime(date('Y-m-d',strtotime("+$days_to_add day", $time)));
-					if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
-						$query[] = array( 'key' => '_start_ts', 'value' => array($today,$end_day), 'type' => 'numeric', 'compare' => 'BETWEEN');
-					}else{
-						$query[] = array( 'key' => '_start_ts', 'value' => $end_day, 'compare' => '<=' );
-						$query[] = array( 'key' => '_end_ts', 'value' => $today, 'compare' => '>=' );
-					}
+			}elseif( preg_match('/(\d\d?\d?)\-days/',$scope,$matches) ){ // next x days means today, plus the following x days.
+				$days_to_add = $matches[1];
+				$today = strtotime(date('Y-m-d',$time));
+				$end_day = strtotime(date('Y-m-d',strtotime("+$days_to_add day", $time)));
+				if( get_option('dbem_events_current_are_past') && $wp_query->query_vars['post_type'] != 'event-recurring' ){
+					$query[] = array( 'key' => '_start_ts', 'value' => array($today,$end_day), 'type' => 'numeric', 'compare' => 'BETWEEN');
+				}else{
+					$query[] = array( 'key' => '_start_ts', 'value' => $end_day, 'compare' => '<=' );
+					$query[] = array( 'key' => '_end_ts', 'value' => $today, 'compare' => '>=' );
+				}
 			}elseif ($scope == "month"){
 				$start_month = strtotime(date('Y-m-d',$time));
 				$end_month = strtotime(date('Y-m-t',$time));
