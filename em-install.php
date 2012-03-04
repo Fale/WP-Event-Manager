@@ -14,10 +14,8 @@ function em_install() {
 		return;
    	}
 	if( EM_VERSION > $old_version || $old_version == '' ){
-		$retry_time = get_option('dbem_upgrade_throttle_time') ? time()-get_option('dbem_upgrade_throttle_time'):time()-3600;
-		if( get_option('dbem_upgrade_throttle') <= $retry_time || !get_option('dbem_upgrade_throttle') ){
+		if( get_option('dbem_upgrade_throttle') <= time() || !get_option('dbem_upgrade_throttle') ){
 		 	// Creates the events table if necessary
-			update_option('dbem_upgrade_throttle_time', time()+3600);
 			em_create_events_table();
 			em_create_events_meta_table();
 			em_create_locations_table();
@@ -29,8 +27,7 @@ function em_install() {
 	
 			//New install, or Migrate?
 			if( $old_version < 5 && !empty($old_version) ){
-				update_option('dbem_upgrade_throttle', time()+(300*60));
-				update_option('dbem_upgrade_throttle_time', 300*60); //extend length of migration throttle
+				update_option('dbem_upgrade_throttle', time()+300);
 				set_time_limit(300);
 				em_migrate_v4();
 				update_site_option('dbem_ms_update_nag',1);
@@ -300,14 +297,15 @@ function em_add_options() {
 	global $wp_locale;
 	$decimal_point = !empty($wp_locale->number_format['decimal_point']) ? $wp_locale->number_format['decimal_point']:'.';
 	$thousands_sep = !empty($wp_locale->number_format['thousands_sep']) ? $wp_locale->number_format['thousands_sep']:',';
-	$contact_person_email_body_localizable = __("#_BOOKINGNAME (#_BOOKINGEMAIL) will attend #_NAME on #F #j, #Y. He wants to reserve #_BOOKINGSPACES spaces.<br/> Now there are #_BOOKEDSPACES spaces reserved, #_AVAILABLESPACES are still available.<br/>Yours faithfully,<br/>Events Manager - http://wp-events-plugin.com",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$contact_person_email_cancelled_body_localizable = __("#_BOOKINGNAME (#_BOOKINGEMAIL) cancelled his booking at #_NAME on #F #j, #Y. He wanted to reserve #_BOOKINGSPACES spaces.<br/> Now there are #_BOOKEDSPACES spaces reserved, #_AVAILABLESPACES are still available.<br/>Yours faithfully,<br/>Events Manager - http://wp-events-plugin.com",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$respondent_email_body_localizable = __("Dear #_BOOKINGNAME, <br/>you have successfully reserved #_BOOKINGSPACES space/spaces for #_NAME.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$respondent_email_pending_body_localizable = __("Dear #_BOOKINGNAME, <br/>You have requested #_BOOKINGSPACES space/spaces for #_NAME.<br/>Your booking is currently pending approval by our administrators. Once approved you will receive an automatic confirmation.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$respondent_email_rejected_body_localizable = __("Dear #_BOOKINGNAME, <br/>Your requested booking for #_BOOKINGSPACES spaces at #_NAME on #F #j, #Y has been rejected.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$respondent_email_cancelled_body_localizable = __("Dear #_BOOKINGNAME, <br/>Your requested booking for #_BOOKINGSPACES spaces at #_NAME on #F #j, #Y has been cancelled.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$event_approved_email_body = __("Dear #_CONTACTNAME, <br/>Your event #_NAME on #F #j, #Y has been approved.<br/>You can view your event here: #_EVENTURL",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
-	$event_submitted_email_body = __("A new event has been submitted by #_CONTACTNAME.<br/>Name : #_EVENTNAME <br/>Date : #_EVENTDATES <br/>Time : #_EVENTTIMES <br/>Please visit #_EDITEVENTURL to review this event for approval.",'dbem').__('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
+	$email_footer = __('<br/><br/>-------------------------------<br/>Powered by Events Manager - http://wp-events-plugin.com','dbem');
+	$contact_person_email_body_localizable = __("#_BOOKINGNAME (#_BOOKINGEMAIL) will attend #_EVENTNAME on #_EVENTDATES. He wants to reserve #_BOOKINGSPACES spaces.<br/> Now there are #_BOOKEDSPACES spaces reserved, #_AVAILABLESPACES are still available.<br/>Yours faithfully,<br/>Events Manager - http://wp-events-plugin.com",'dbem').$email_footer;
+	$contact_person_email_cancelled_body_localizable = __("#_BOOKINGNAME (#_BOOKINGEMAIL) cancelled his booking at #_EVENTNAME on #_EVENTDATES. He wanted to reserve #_BOOKINGSPACES spaces.<br/> Now there are #_BOOKEDSPACES spaces reserved, #_AVAILABLESPACES are still available.<br/>Yours faithfully,<br/>Events Manager - http://wp-events-plugin.com",'dbem').$email_footer;
+	$respondent_email_body_localizable = __("Dear #_BOOKINGNAME, <br/>you have successfully reserved #_BOOKINGSPACES space/spaces for #_EVENTNAME.<br/>When : #_EVENTDATES @ #_EVENTTIMES<br/>Where : #_LOCATIONNAME - #_LOCATIONFULLLINE<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').$email_footer;
+	$respondent_email_pending_body_localizable = __("Dear #_BOOKINGNAME, <br/>You have requested #_BOOKINGSPACES space/spaces for #_EVENTNAME.<br/>When : #_EVENTDATES @ #_EVENTTIMES<br/>Where : #_LOCATIONNAME - #_LOCATIONFULLLINE<br/>Your booking is currently pending approval by our administrators. Once approved you will receive an automatic confirmation.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').$email_footer;
+	$respondent_email_rejected_body_localizable = __("Dear #_BOOKINGNAME, <br/>Your requested booking for #_BOOKINGSPACES spaces at #_EVENTNAME on #_EVENTDATES has been rejected.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').$email_footer;
+	$respondent_email_cancelled_body_localizable = __("Dear #_BOOKINGNAME, <br/>Your requested booking for #_BOOKINGSPACES spaces at #_EVENTNAME on #_EVENTDATES has been cancelled.<br/>Yours faithfully,<br/>#_CONTACTNAME",'dbem').$email_footer;
+	$event_approved_email_body = __("Dear #_CONTACTNAME, <br/>Your event #_EVENTNAME on #_EVENTDATES has been approved.<br/>You can view your event here: #_EVENTURL",'dbem').$email_footer;
+	$event_submitted_email_body = __("A new event has been submitted by #_CONTACTNAME.<br/>Name : #_EVENTNAME <br/>Date : #_EVENTDATES <br/>Time : #_EVENTTIMES <br/>Please visit #_EDITEVENTURL to review this event for approval.",'dbem').$email_footer;
 	$event_submitted_email_body = str_replace('#_EDITEVENTURL', admin_url().'post.php?action=edit&post=#_EVENTPOSTID', $event_submitted_email_body);
 
 	$dbem_options = array(
@@ -349,17 +347,18 @@ function em_add_options() {
 		'dbem_event_submitted_email_admin' => '',
 		'dbem_event_submitted_email_subject' => __('Submitted Event Awaiting Approval', 'dbem'),
 		'dbem_event_submitted_email_body' => str_replace("<br/>", "\n\r", $event_submitted_email_body),
-		'dbem_event_approved_email_subject' => __("Event Approved",'dbem'). " - #_NAME" ,
+		'dbem_event_approved_email_subject' => __("Event Approved",'dbem'). " - #_EVENTNAME" ,
 		'dbem_event_approved_email_body' => str_replace("<br/>", "\n\r", $event_approved_email_body),
 		//Event Formatting
 		'dbem_events_page_title' => __('Events','dbem'),
 		'dbem_events_page_scope' => 'future',
 		'dbem_events_page_search' => 1,
-		'dbem_event_list_item_format_header' => '<table cellpadding="0" cellspacing="0" id="current-events" >
+		'dbem_event_list_item_format_header' => '<table cellpadding="0" cellspacing="0" class="events-table" >
     <thead>
         <tr>
-			<th id="event-time" width="150">Date/Time</th>
-			<th id="event-description" width="*">Event</th>
+			<th class="event-time" width="150">Date/Time</th>
+			<th class="event-description" width="*">Event</th>
+		</tr>
    	</thead>
     <tbody>',
 		'dbem_event_list_item_format' => '<tr>
@@ -368,8 +367,8 @@ function em_add_options() {
                 #_EVENTTIMES
             </td>
             <td>
-                #_EVENTLINK<br/>
-                <i>#_LOCATIONNAME, #_LOCATIONTOWN #_LOCATIONSTATE</i>
+                #_EVENTLINK
+                {has_location}<br/><i>#_LOCATIONNAME, #_LOCATIONTOWN #_LOCATIONSTATE</i>{/has_location}
             </td>
         </tr>',
 		'dbem_event_list_item_format_footer' => '</tbody></table>',
@@ -379,21 +378,23 @@ function em_add_options() {
 	<strong>Date/Time</strong><br/>
 	Date(s) - #_EVENTDATES<br /><i>#_EVENTTIMES</i>
 </p>
+{has_location}
 <p>
 	<strong>Location</strong><br/>
 	#_LOCATIONLINK
 </p>
+{/has_location}
 <p>
 	<strong>Category(ies)</strong>
 	#_CATEGORIES
 </p>
 <br style="clear:both" />
-#_NOTES
+#_EVENTNOTES
 {has_bookings}
 <h3>Bookings</h3>
 #_BOOKINGFORM
 {/has_bookings}',
-		'dbem_event_page_title_format' => '#_NAME',
+		'dbem_event_page_title_format' => '#_EVENTNAME',
 		'dbem_event_all_day_message' => __('All Day','dbem'),
 		'dbem_no_events_message' => sprintf(__( 'No %s', 'dbem' ),__('Events','dbem')),
 		//Location page options
@@ -405,7 +406,7 @@ function em_add_options() {
 		'dbem_locations_page_title' => __('Event','dbem')." ".__('Locations','dbem'),
 		'dbem_no_locations_message' => sprintf(__( 'No %s', 'dbem' ),__('Locations','dbem')),
 		'dbem_location_default_country' => 'US',
-		'dbem_location_list_item_format' => '#_LOCATIONLINK<ul><li>#_ADDRESS, #_LOCATIONTOWN, #_LOCATIONSTATE</li></ul>',
+		'dbem_location_list_item_format' => '#_LOCATIONLINK<ul><li>#_LOCATIONFULLLINE</li></ul>',
 		'dbem_location_page_title_format' => '#_LOCATIONNAME',
 		'dbem_single_location_format' => '<div style="float:right; margin:0px 0px 15px 15px;">#_MAP</div>
 <p>
@@ -418,10 +419,10 @@ function em_add_options() {
 	#_LOCATIONCOUNTRY
 </p>
 <br style="clear:both" />
-#_DESCRIPTION
+#_LOCATIONNOTES
 
 <h3>Upcoming Events</h3>
-<p>#_NEXTEVENTS</p>',
+<p>#_LOCATIONNEXTEVENTS</p>',
 		'dbem_location_no_events_message' => __('<li>No events in this location</li>', 'dbem'),
 		'dbem_location_event_list_item_header_format' => "<ul>",
 		'dbem_location_event_list_item_format' => "<li>#_EVENTLINK - #j #M #Y - #H:#i</li>",
@@ -453,17 +454,17 @@ function em_add_options() {
 		'dbem_rss_scope' => 'future',
 		'dbem_rss_main_title' => get_bloginfo('title')." - ".__('Events', 'dbem'),
 		'dbem_rss_main_description' => get_bloginfo('description')." - ".__('Events', 'dbem'),
-		'dbem_rss_description_format' => "#j #M #y - #H:#i <br/>#_LOCATION <br/>#_LOCATIONADDRESS <br/>#_LOCATIONTOWN",
-		'dbem_rss_title_format' => "#_NAME",
+		'dbem_rss_description_format' => "#j #M #y - #H:#i <br/>#_LOCATIONNAME <br/>#_LOCATIONADDRESS <br/>#_LOCATIONTOWN",
+		'dbem_rss_title_format' => "#_EVENTNAME",
 		'em_rss_pubdate' => date('D, d M Y H:i:s T'),
 		//iCal Stuff
 		'dbem_ical_limit' => 0,
 		'dbem_ical_scope' => "future",
-		'dbem_ical_description_format' => "#_NAME - #_LOCATIONNAME - #j #M #y #H:#i",
+		'dbem_ical_description_format' => "#_EVENTNAME - #_LOCATIONNAME - #j #M #y #H:#i",
 		//Google Maps
 		'dbem_gmap_is_active'=> 1,
 		'dbem_location_baloon_format' =>  "<strong>#_LOCATIONNAME</strong><br/>#_LOCATIONADDRESS - #_LOCATIONTOWN<br/><a href='#_LOCATIONPAGEURL'>Details</a>",
-		'dbem_map_text_format' => '<strong>#_LOCATION</strong><p>#_LOCATIONADDRESS</p><p>#_LOCATIONTOWN</p>',
+		'dbem_map_text_format' => '<strong>#_LOCATIONNAME</strong><p>#_LOCATIONADDRESS</p><p>#_LOCATIONTOWN</p>',
 		//Email Config
 		'dbem_email_disable_registration' => 0,
 		'dbem_rsvp_mail_port' => 465,
@@ -480,12 +481,13 @@ function em_add_options() {
 		'dbem_full_calendar_event_format' => '<li>#_EVENTLINK</li>',
 		'dbem_full_calendar_long_events' => '0',
 		'dbem_display_calendar_day_single_yes' => 1,
-		'dbem_small_calendar_event_title_format' => "#_NAME",
+		'dbem_small_calendar_event_title_format' => "#_EVENTNAME",
 		'dbem_small_calendar_event_title_separator' => ", ",
 		'dbem_display_calendar_order' => 'ASC',
 		'dbem_display_calendar_orderby' => 'event_name,event_start_time',
 		'dbem_display_calendar_events_limit' => get_option('dbem_full_calendar_events_limit',3),
 		'dbem_display_calendar_events_limit_msg' => __('more...','dbem'),
+		'dbem_calendar_direct_links' => 1,
 		//General Settings
 		'dbem_require_location' => 0,
 		'dbem_locations_enabled' => 1,
@@ -502,13 +504,10 @@ function em_add_options() {
 		'dbem_disable_title_rewrites'=> false,
 		'dbem_title_html' => '<h2>#_PAGETITLE</h2>',
 		//Bookings
-		'dbem_bookings_form_max' => 20,
 		'dbem_bookings_registration_disable' => 0,
 		'dbem_bookings_registration_user' => '',
-		'dbem_bookings_anonymous' => 1,
 		'dbem_bookings_approval' => 1, //approval is on by default
 		'dbem_bookings_approval_reserved' => 0, //overbooking before approval?
-		'dbem_bookings_login_form' => 1, //show login form on booking area
 		'dbem_bookings_approval_overbooking' => 0, //overbooking possible when approving?
 		'dbem_bookings_double'=>0,//double bookings or more, users can't double book by default
 		'dbem_bookings_user_cancellation' => 1, //can users cancel their booking?
@@ -518,6 +517,17 @@ function em_add_options() {
 		'dbem_bookings_currency_format' => '@#',
 		'dbem_bookings_tax' => 0, //extra tax
 		'dbem_bookings_tax_auto_add' => 0, //adjust prices to show tax?
+			//Form Options
+			'dbem_bookings_submit_button' => __('Send your booking', 'dbem'),
+			'dbem_bookings_login_form' => 1, //show login form on booking area
+			'dbem_bookings_anonymous' => 1,
+			'dbem_bookings_form_max' => 20,
+			//Messages
+			'dbem_bookings_form_msg_disabled' => __('Online bookings are not available for this event.','dbem'),
+			'dbem_bookings_form_msg_closed' => __('Bookings are closed for this event.','dbem'),
+			'dbem_bookings_form_msg_full' => __('This event is fully booked.','dbem'),
+			'dbem_bookings_form_msg_attending'=>__('You are currently attending this event.','dbem'),
+			'dbem_bookings_form_msg_bookings_link'=>__('Manage my bookings','dbem'),
 			//messages
 			'dbem_booking_feedback_pending' =>__('Booking successful, pending confirmation (you will also receive an email once confirmed).', 'dbem'),
 			'dbem_booking_feedback' => __('Booking successful.', 'dbem'),
@@ -546,9 +556,6 @@ function em_add_options() {
 			'dbem_bookings_email_confirmed_body' => str_replace("<br/>", "\n\r", $respondent_email_body_localizable),
 			'dbem_bookings_email_cancelled_subject' => __('Booking Cancelled','dbem'),
 			'dbem_bookings_email_cancelled_body' => str_replace("<br/>", "\n\r", $respondent_email_cancelled_body_localizable),
-			//Bookings Form - beta - not working at all yet
-			'dbem_bookings_page' => '<p>Date/Time - #j #M #Y #_12HSTARTTIME #@_{ \u\n\t\i\l j M Y}<br />Where - #_LOCATIONLINK</p>#_EXCERPT #_BOOKINGFORM<p>'.__('Powered by','dbem').'<a href="http://wp-events-plugin.com">events manager</a></p>',
-			'dbem_bookings_page_title' => __('Bookings - #_NAME','dbem'),
 			//Ticket Specific Options
 			'dbem_bookings_tickets_orderby' => 'ticket_price DESC, ticket_name ASC',
 			'dbem_bookings_tickets_priority' => 0,

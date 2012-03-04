@@ -89,11 +89,12 @@ jQuery(document).ready( function($){
 		$('.em-events-search select[name=town]').load( EM.ajaxurl, data );
 	});
 	
-	//in order for this to work, you need the above classes to be present in your theme
-	$('.em-events-search-form').submit(function(){
+	//in order for this to work, you need the above classes to be present in your templates
+	$('.em-events-search-form').live('submit',function(e){
     	if( this.search && this.search.value== EM.txt_search ){ this.search.value = ''; }
     	if( this.em_search && this.em_search.value== EM.txt_search){ this.em_search.value = ''; }
     	if( $('#em-wrapper .em-events-search-ajax').length == 1 ){
+    		e.preventDefault();
 			$('.em-events-search-form :submit').val(EM.txt_searching);
 			$.ajax( EM.ajaxurl, {
 	    		dataType : 'html',
@@ -105,8 +106,21 @@ jQuery(document).ready( function($){
 	    	});
 			return false;
     	} 
-	});	
-	
+	});
+	if( $('#em-wrapper .em-events-search-ajax').length > 0 ){
+		$('#em-wrapper .em-events-search-ajax a.page-numbers').live('click', function(e){
+			e.preventDefault();
+			var pageNo = $(this).attr('title');
+			if( $('.em-events-search-form input[name="page"]').length > 0 ){
+				$('.em-events-search-form input[name="page"]').val(pageNo);
+			}else{
+				$('.em-events-search-form').append('<input type="hidden" name="page" value="'+pageNo+'" />');
+			}
+			$('.em-events-search-form').trigger('submit');
+			return false;
+		});
+	}
+		
 	/*
 	 * ADMIN AREA AND PUBLIC FORMS (Still polishing this section up, note that form ids and classes may change accordingly)
 	 */
@@ -164,6 +178,8 @@ jQuery(document).ready( function($){
 				});
 				slot.find('span.'+el.attr('name')).text(el.attr('value'));
 			});
+			//allow for others to hook into this
+			$(document).triggerHandler('em_maps_tickets_edit', [slot, rowNo, edit]);
 			//sort out dates and localization masking
 			var start_pub = $("#em-tickets-form input[name=ticket_start_pub]").val();
 			var end_pub = $("#em-tickets-form input[name=ticket_end_pub]").val();
@@ -381,7 +397,7 @@ jQuery(document).ready( function($){
 			$.datepicker.regional['vi']={closeText:'Đóng',prevText:'<Trước',nextText:'Tiếp>',currentText:'Hôm nay',monthNames:['Tháng Một','Tháng Hai','Tháng Ba','Tháng Tư','Tháng Năm','Tháng Sáu','Tháng Bảy','Tháng Tám','Tháng Chín','Tháng Mười','Tháng Mười Một','Tháng Mười Hai'],monthNamesShort:['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'],dayNames:['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'],dayNamesShort:['CN','T2','T3','T4','T5','T6','T7'],dayNamesMin:['CN','T2','T3','T4','T5','T6','T7'],weekHeader:'Tu',dateFormat:'dd/mm/yy',firstDay:0,isRTL:false,showMonthAfterYear:false,yearSuffix:''};
 			$.datepicker.regional['zh-TW']={closeText:'關閉',prevText:'<上月',nextText:'下月>',currentText:'今天',monthNames:['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],monthNamesShort:['一','二','三','四','五','六','七','八','九','十','十一','十二'],dayNames:['星期日','星期一','星期二','星期三','星期四','星期五','星期六'],dayNamesShort:['周日','周一','周二','周三','周四','周五','周六'],dayNamesMin:['日','一','二','三','四','五','六'],weekHeader:'周',dateFormat:'yy/mm/dd',firstDay:1,isRTL:false,showMonthAfterYear:true,yearSuffix:'年'};
 			$.datepicker.regional['es']={closeText:'Cerrar',prevText:'<Ant',nextText:'Sig>',currentText:'Hoy',monthNames:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],monthNamesShort:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],dayNames:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],dayNamesShort:['Dom','Lun','Mar','Mié','Juv','Vie','Sáb'],dayNamesMin:['Do','Lu','Ma','Mi','Ju','Vi','Sá'],weekHeader:'Sm',dateFormat:'dd/mm/yy',firstDay:1,isRTL:false,showMonthAfterYear:false,yearSuffix:''};
-			$.datepicker.regional['it']={closeText:'Fatto',prevText:'Precedente',nextText:'Prossimo',currentText:'Oggi',monthNames:['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'],monthNamesShort:['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'],dayNames:['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'],dayNamesShort:['Lun','Mar','Mer','Gio','Ven','Sab','Dom'],dayNamesMin:['Lu','Ma','Me','Gi','Ve','Sa','Do'],weekHeader:'Wk',dateFormat:'dd/mm/yy',firstDay:1,isRTL:false,showMonthAfterYear:false,yearSuffix:''};
+			$.datepicker.regional['it']={closeText:'Fatto',prevText:'Precedente',nextText:'Prossimo',currentText:'Oggi',monthNames:['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'],monthNamesShort:['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'],dayNames:['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'],dayNamesShort:['Lun','Mar','Mer','Gio','Ven','Sab','Dom'],dayNamesMin:['Do','Lu','Ma','Me','Gi','Ve','Sa'],weekHeader:'Wk',dateFormat:'dd/mm/yy',firstDay:1,isRTL:false,showMonthAfterYear:false,yearSuffix:''};
 			$.datepicker.setDefaults($.datepicker.regional[EM.locale]);
 		}
 		//default picker vals
@@ -646,6 +662,7 @@ function em_location_input_ajax(){
 					jQuery('input#location-address').val(ui.item.address);
 					jQuery('input#location-town').val(ui.item.town);
 					jQuery('input#location-state').val(ui.item.state);
+					jQuery('input#location-region').val(ui.item.region);
 					jQuery('input#location-postcode').val(ui.item.postcode);
 					if( ui.item.country == '' ){
 						jQuery('select#location-country option:selected').removeAttr('selected');

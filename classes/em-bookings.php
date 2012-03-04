@@ -82,7 +82,7 @@ class EM_Bookings extends EM_Object implements Iterator{
 						}
 					}
 				}
-				return true;
+				return apply_filters('em_bookings_add', true, $EM_Booking);
 			}else{
 				//Failure
 				$this->errors[] = "<strong>".get_option('dbem_booking_feedback_error')."</strong><br />". implode('<br />', $EM_Booking->errors);
@@ -186,6 +186,18 @@ class EM_Bookings extends EM_Object implements Iterator{
 			}
 		}
 		return apply_filters('em_bookings_ticket_exists',false, false,$this);
+	}
+	
+	function is_open(){
+		//TODO extend booking options
+		$return = false;
+		if( $this->get_event()->start > current_time('timestamp') ){
+			$return = true;
+		}
+		if( count($this->get_available_tickets()->tickets) == 0){
+			$return = false;
+		}
+		return apply_filters('em_bookings_is_open', $return, $this);
 	}
 	
 	/**
@@ -293,7 +305,9 @@ class EM_Bookings extends EM_Object implements Iterator{
 	 * @return int
 	 */
 	function get_available_spaces(){
-		$available_spaces = $this->get_spaces() - $this->get_booked_spaces();
+		$spaces = $this->get_spaces();
+		if(!empty($this->get_event()->event_spaces) && $this->get_event()->event_spaces < $spaces) $spaces = $this->get_event()->event_spaces;
+		$available_spaces = $spaces - $this->get_booked_spaces();
 		return apply_filters('em_booking_get_available_spaces', $available_spaces, $this);
 	}
 

@@ -119,13 +119,13 @@ class EM_Event_Posts_Admin{
 				break;
 			case 'date-time':
 				//get meta value to see if post has location, otherwise
-				$localised_start_date = date_i18n('D d M Y', $EM_Event->start);
-				$localised_end_date = date_i18n('D d M Y', $EM_Event->end);
+				$localised_start_date = date_i18n(get_option('date_format'), $EM_Event->start);
+				$localised_end_date = date_i18n(get_option('date_format'), $EM_Event->end);
 				echo $localised_start_date;
 				echo ($localised_end_date != $localised_start_date) ? " - $localised_end_date":'';
 				echo "<br />";
 				if(!$EM_Event->event_all_day){
-					echo substr ( $EM_Event->start_time, 0, 5 ) . " - " . substr ( $EM_Event->end_time, 0, 5 );
+					echo date_i18n(get_option('time_format'), $EM_Event->start) . " - " . date_i18n(get_option('time_format'), $EM_Event->end);
 				}else{
 					echo get_option('dbem_event_all_day_message');
 				}

@@ -70,8 +70,8 @@ class EM_Event_Post_Admin{
 		if(!defined('UNTRASHING_'.$post_id) && $is_post_type && $saving_status ){
 			if( wp_verify_nonce($_REQUEST['_emnonce'], 'edit_event') ){ 
 				//this is only run if we know form data was submitted, hence the nonce
-				do_action('em_event_save_pre', $EM_Event); //technically, the event is saved... but the meta isn't. wp doesn't give an pre-intervention action for this (or does it?)
 				$EM_Event = em_get_event($post_id, 'post_id');
+				do_action('em_event_save_pre', $EM_Event); //technically, the event is saved... but the meta isn't. wp doesn't give an pre-intervention action for this (or does it?)
 				//Handle Errors by making post draft
 				$get_meta = $EM_Event->get_post_meta();
 				$save_meta = $EM_Event->save_meta();
@@ -99,6 +99,7 @@ class EM_Event_Post_Admin{
 				//we're updating only the quick-edit style information, which is only post info saved into the index
 				$EM_Event = em_get_event($post_id, 'post_id'); //grab event, via post info
 				if( $EM_Event->validate() ){
+					do_action('em_event_save_pre', $EM_Event); //technically, the event is saved... but the meta isn't. wp doesn't give an pre-intervention action for this (or does it?)
 					//first things first, we must make sure we have an index, if not, reset it to a new one:
 					$event_truly_exists = $wpdb->get_var('SELECT event_id FROM '.EM_EVENTS_TABLE." WHERE event_id={$EM_Event->event_id}") == $EM_Event->event_id;
 					if(empty($EM_Event->event_id) || !$event_truly_exists){ $EM_Event->save_meta(); }
@@ -119,6 +120,7 @@ class EM_Event_Post_Admin{
 					}
 					apply_filters('em_event_save', true, $EM_Event);
 				}else{
+					do_action('em_event_save_pre', $EM_Event); //technically, the event is saved... but the meta isn't. wp doesn't give an pre-intervention action for this (or does it?)
 					//Event doesn't validate, so set status to null
 					$EM_Event->set_status(null, true);
 					apply_filters('em_event_save', false, $EM_Event);
@@ -300,7 +302,7 @@ class EM_Event_Recurring_Post_Admin{
 			$events_array = EM_Events::get( array('recurrence'=>$EM_Event->event_id, 'scope'=>'all', 'status'=>'all' ) );
 			foreach($events_array as $event){
 				/* @var $event EM_Event */
-				if($EM_Event->event_id == $event->recurrence_id ){ //double check the event is a recurrence of this event
+				if($EM_Event->event_id == $event->recurrence_id && !empty($event->recurrence_id) ){ //double check the event is a recurrence of this event
 					wp_delete_post($event->post_id, true);
 				}
 			}
@@ -366,6 +368,9 @@ class EM_Event_Recurring_Post_Admin{
 		}
 		if( (empty($EM_Event->event_id) || !empty($EM_Event->group_id)) && function_exists('groups_get_user_groups') ){
 			add_meta_box('em-event-group', __('Group Ownership','dbem'), array('EM_Event_Post_Admin','meta_box_group'),'event-recurring', 'side','low');
+		}
+		if( EM_MS_GLOBAL && !is_main_site() && get_option('dbem_categories_enabled') ){
+			add_meta_box('em-event-categories', __('Site Categories','dbem'), array('EM_Event_Post_Admin','meta_box_ms_categories'),'event-recurring', 'side','low');
 		}
 	}
 	

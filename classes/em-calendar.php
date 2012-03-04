@@ -247,20 +247,26 @@ class EM_Calendar extends EM_Object {
 							
 				//Get the link to this calendar day
 				global $wp_rewrite;
-				if( get_option("dbem_events_page") > 0 ){
-					$event_page_link = trailingslashit(get_permalink(get_option("dbem_events_page"))); //PAGE URI OF EM
-				}else{
-					if( $wp_rewrite->using_permalinks() ){
-						$event_page_link = trailingslashit(home_url()).EM_POST_TYPE_EVENT_SLUG.'/'; //don't use EM_URI here, since ajax calls this before EM_URI is defined.
+				if( count($events) > 1 || !get_option('dbem_calendar_direct_links') ){
+					if( get_option("dbem_events_page") > 0 ){
+						$event_page_link = trailingslashit(get_permalink(get_option("dbem_events_page"))); //PAGE URI OF EM
 					}else{
-						$event_page_link = trailingslashit(home_url()).'?post_type='.EM_POST_TYPE_EVENT; //don't use EM_URI here, since ajax calls this before EM_URI is defined.
+						if( $wp_rewrite->using_permalinks() ){
+							$event_page_link = trailingslashit(home_url()).EM_POST_TYPE_EVENT_SLUG.'/'; //don't use EM_URI here, since ajax calls this before EM_URI is defined.
+						}else{
+							$event_page_link = trailingslashit(home_url()).'?post_type='.EM_POST_TYPE_EVENT; //don't use EM_URI here, since ajax calls this before EM_URI is defined.
+						}
 					}
-				}
-				if( $wp_rewrite->using_permalinks() && !defined('EM_DISABLE_PERMALINKS') ){
-					$calendar_array['cells'][$day_key]['link'] = $event_page_link.$day_key."/";
+					if( $wp_rewrite->using_permalinks() && !defined('EM_DISABLE_PERMALINKS') ){
+						$calendar_array['cells'][$day_key]['link'] = $event_page_link.$day_key."/";
+					}else{
+						$joiner = (stristr($event_page_link, "?")) ? "&amp;" : "?";				
+						$calendar_array['cells'][$day_key]['link'] = $event_page_link.$joiner."calendar_day=".$day_key;
+					}
 				}else{
-					$joiner = (stristr($event_page_link, "?")) ? "&amp;" : "?";				
-					$calendar_array['cells'][$day_key]['link'] = $event_page_link.$joiner."calendar_day=".$day_key;
+					foreach($events as $EM_Event){
+						$calendar_array['cells'][$day_key]['link'] = $EM_Event->get_permalink();
+					}
 				}
 				//Add events to array
 				$calendar_array['cells'][$day_key]['events'] = $events;
@@ -269,12 +275,23 @@ class EM_Calendar extends EM_Object {
 		return apply_filters('em_calendar_get',$calendar_array, $args);
 	}
 	
-	function output($args = array()) {	
+	function output($args = array(), $wrapper = true) {
+		//Let month and year REQUEST override for non-JS users
+		if( !empty($_REQUEST['month']) ){
+			$args['month'] = $_REQUEST['month'];
+		}
+		if( !empty($_REQUEST['year']) ){
+			$args['year'] = $_REQUEST['year'];
+		}
 		$calendar_array  = self::get($args);
 		$template = (!empty($args['full'])) ? 'templates/calendar-full.php':'templates/calendar-small.php';
 		ob_start();
 		em_locate_template($template, true, array('calendar'=>$calendar_array,'args'=>$args));
-		$calendar = '<div id="em-calendar-'.rand(100,200).'" class="em-calendar-wrapper">'.ob_get_clean().'</div>';
+		if($wrapper){
+			$calendar = '<div id="em-calendar-'.rand(100,200).'" class="em-calendar-wrapper">'.ob_get_clean().'</div>';
+		}else{
+			$calendar = ob_get_clean();
+		}
 		return apply_filters('em_calendar_output', $calendar, $args);
 	}
 

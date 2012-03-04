@@ -46,7 +46,7 @@ function em_init_actions() {
 	
 		if(isset($_REQUEST['ajaxCalendar']) && $_REQUEST['ajaxCalendar']) {
 			//FIXME if long events enabled originally, this won't show up on ajax call
-			echo EM_Calendar::output($_REQUEST);
+			echo EM_Calendar::output($_REQUEST, false);
 			die();
 		}
 	}
@@ -194,6 +194,7 @@ function em_init_actions() {
 					location_address AS `address`, 
 					location_town AS `town`, 
 					location_state AS `state`,
+					location_region AS `region`,
 					location_postcode AS `postcode`,
 					location_country AS `country`
 				FROM ".EM_LOCATIONS_TABLE." 
@@ -230,9 +231,10 @@ function em_init_actions() {
 		if ( $_REQUEST['action'] == 'booking_add') {
 			//ADD/EDIT Booking
 			em_verify_nonce('booking_add');
-			do_action('em_booking_add', $EM_Event, $EM_Booking);
 			if( !is_user_logged_in() || get_option('dbem_bookings_double') || !$EM_Event->get_bookings()->has_booking(get_current_user_id()) ){
-				if( $EM_Booking->get_post() ){
+				$post_validation = $EM_Booking->get_post();
+				do_action('em_booking_add', $EM_Event, $EM_Booking, $post_validation);
+				if( $post_validation ){
 					//Does this user need to be registered first?
 					$registration = true;
 					//TODO do some ticket validation before registering the user
@@ -369,6 +371,7 @@ function em_init_actions() {
 						exit();
 					}
 				}else{
+					$result = false;
 					$EM_Notices->add_error( $EM_Booking->get_errors() );
 					$feedback = $EM_Booking->feedback_message;
 				}
