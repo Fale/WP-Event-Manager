@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Events Manager
-Version: 5.0.51
+Version: 5.1.3
 Plugin URI: http://wp-events-plugin.com
 Description: Event registration and booking management for WordPress. Recurring events, locations, google maps, rss, ical, booking registration and more!
 Author: Marcus Sykes
@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 // Setting constants
-define('EM_VERSION', 5.051); //self expanatory
-define('EM_PRO_MIN_VERSION', 1.5); //self expanatory
+define('EM_VERSION', 5.081); //self expanatory
+define('EM_PRO_MIN_VERSION', 1.71); //self expanatory
 define('EM_DIR', dirname( __FILE__ )); //an absolute path to this directory
 //EM_MS_GLOBAL
 if( get_site_option('dbem_ms_global_table') && is_multisite() ){
@@ -221,6 +221,7 @@ class EM_Scripts_and_Styles {
 		//Localize
 		$em_localized_js = array(
 			'ajaxurl' => admin_url('admin-ajax.php'),
+			'bookingajaxurl' => admin_url('admin-ajax.php'),
 			'locationajaxurl' => admin_url('admin-ajax.php?action=locations_search'),
 			'firstDay' => get_option('start_of_week'),
 			'locale' => $locale_code,
@@ -242,7 +243,7 @@ class EM_Scripts_and_Styles {
 			$em_localized_js['txt_searching'] = __('Searching...','dbem');
 			$em_localized_js['txt_loading'] = __('Loading...','dbem');
 		}
-		wp_localize_script('events-manager','EM', $em_localized_js);
+		wp_localize_script('events-manager','EM', apply_filters('em_wp_localize_script', $em_localized_js));
 	}
 
 	function admin_styles(){
@@ -320,7 +321,11 @@ function em_init(){
 	if( $wp_rewrite->using_permalinks() ){
 		define('EM_RSS_URI', trailingslashit(EM_URI)."rss/"); //RSS PAGE URI
 	}else{
-		define('EM_RSS_URI', EM_URI."&rss=1"); //RSS PAGE URI
+		if( get_option("dbem_events_page") > 0 ){
+			define('EM_RSS_URI', EM_URI."&rss=1"); //RSS PAGE URI
+		}else{
+			define('EM_RSS_URI', EM_URI."&feed=rss2"); //RSS PAGE URI
+		}
 	}
 	$EM_Mailer = new EM_Mailer();
 	//Upgrade/Install Routine
@@ -485,7 +490,7 @@ class EM_Formats {
 		//you can hook into this filter and activate the format options you want to override by supplying the wp option names in an array, just like in the database.
 		$formats = apply_filters('em_formats_filter', array());
 		foreach( $formats as $format_name ){
-			add_filter('option_'.$format_name, array(&$this, $format_name), 1,1);
+			add_filter('pre_option_'.$format_name, array(&$this, $format_name), 1,1);
 		}
 	}
 	function __call( $name, $value ){
@@ -526,10 +531,8 @@ function em_rss_pubdate_change($result){
 }
 add_filter('em_event_save', 'em_rss_pubdate_change', 10,1);
 
-/* Creating the wp_events table to store event data*/
 function em_activate() {
-	global $wp_rewrite;
-   	$wp_rewrite->flush_rules();
+	update_option('dbem_flush_needed',1);
 }
 register_activation_hook( __FILE__,'em_activate');
 

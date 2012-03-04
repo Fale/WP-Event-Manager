@@ -2,9 +2,9 @@
 Contributors: nutsmuggler, netweblogic
 Donate link: http://wp-events-plugin.com
 Tags: events, event, event registration, event calendar, events calendar, event management, paypal, registration, ticket, tickets, ticketing, tickets, theme, widget, locations, maps, booking, attendance, attendee, buddypress, calendar, gigs, payment, payments, sports,
-Requires at least: 3.1
+Requires at least: 3.2
 Tested up to: 3.3.1
-Stable tag: 5.0.51
+Stable tag: 5.1.3
 
 Fully featured event registration management including recurring events, locations management, calendar, Google map integration, booking management
 
@@ -31,7 +31,7 @@ Version 5 now makes events and locations WordPress Custom Post Types, allowing f
  * Personal Events
  * Activity Stream
  * more on the way
-* Guest/Member Event submissions (
+* Guest/Member Event submissions
 * Assign event locations and view events by location
 * Event categories
 * Easily create custom event attributes (e.g. dress code)
@@ -39,10 +39,10 @@ Version 5 now makes events and locations WordPress Custom Post Types, allowing f
 * Advanced permissions - restrict user management of events and locations.
 * Widgets for Events, Locations and Calendars
 * Fine grained control of how every aspect of your events are shown on your site, easily modify templates from the settings pages and template files
-* iCal Feed
+* iCal Feed (single and all events)
 * Add to Google Calendar buttons
 * RSS Feeds
-* SEO Permalinks
+* Compatible with SEO plugins
 * Plenty of template tags and shortcodes for use in your posts and pages
 * Actively maintained and supported
 * Lots of documentation and tutorials
@@ -51,8 +51,9 @@ Version 5 now makes events and locations WordPress Custom Post Types, allowing f
 = Go Pro =
 We have also released an add-on for Events Manager which not only demonstrates the flexibility of Events Manager, but also adds some important features:
 
-* PayPal and Offline Payments
+* PayPal, Authorize.net and Offline Payments
 * Custom booking forms
+* Coupon Codes
 * Faster support via private forums
 
 For more information or to go pro, [visit our plugin website](http://wp-events-plugin.com).
@@ -97,6 +98,51 @@ See our [FAQ](http://wp-events-plugin.com/documentation/faq/) page, which is upd
 6. Manage attendees with various booking reports
 
 == Changelog ==
+= 5.1.3 =
+* added is_past and is_future conditionals
+* corrected conditional regex to allow multiple duplicate conditionals and nesting
+* fixed some wp_rewrite irregularities due to slug combinations/conflicts
+* fixed template format files not overriding
+
+
+= 5.1.2 =
+* fixed auto-delete bug where auto-draft recurring events deletes all events
+* fixed recurrence pattern bug
+* calendar ajax links are now SE and non JS friendly
+* rss link fixed in non-permalinks mode
+* added sorting options to my bookings page
+* updated de_DE, cs_CZ, dk_DK
+* fixed admin email not going out if booking approvals disabled
+
+= 5.1.1 =
+* fixed search JS bug, preventing searchings being made
+
+= 5.1 =
+* revised booking form template files (future-feature-proofing), simplified booking JS
+* added readme files on updating templates with docs and commented further on templates
+* improved booking button (allows cancellation)
+* added disable email if subject is blank
+* bookings can now have a overall spaces cap which override individual ticket spaces.
+* improved compatibility with themes not supporting featured images
+* improved the booking form ajax table to allow more customizability.
+* calendars now will by default direct single event days directly to event page
+* added various price related and location placeholders
+* fixed post_id not being used in shortcode attributes
+* fixed italian datepicker problem
+* quick edit now reflects publish status
+* GBP sign format corrected (encoding issue)
+* fixed admin cross-post search function conflicts
+* fixed some public side search issues
+* fixed notes placeholders not formatting on some instances (e.g. categories)
+* bp activity feed now reports cancelled bookings again
+* location form now prefills region when loading prev. location
+* fixed event sorting order for same-day events on archives (requires resaving the events).
+* made times displayed on post tables use WP general time settings for consistency
+* fixed empty tr in calendars
+* fixed missing category meta box in MS global mode
+* added  em_wp_localize_script filter for hooking into localization of js
+* moved anonymous event submissions back into blog settings in MS mode
+* added "email exists" customizable message
 
 = 5.0.51 =
 * fixed limit issue for calendars when no limit is set

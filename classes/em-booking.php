@@ -285,7 +285,8 @@ class EM_Booking extends EM_Object{
 			$this->booking_price = $this->get_tickets_bookings()->get_price($force_refresh, false, $add_tax);
 		}
 		if($format){
-			return apply_filters('em_booking_get_price', em_get_currency_formatted($this->booking_price),$this);
+			$price = apply_filters('em_booking_get_price', $this->booking_price, $this, $format);
+			return em_get_currency_formatted($price);
 		}
 		return apply_filters('em_booking_get_price',$this->booking_price,$this);
 	}
@@ -419,33 +420,33 @@ class EM_Booking extends EM_Object{
 		return apply_filters('em_booking_delete',( $result !== false ), $this);
 	}
 	
-	function cancel(){
+	function cancel($email = true){
 		if( $this->person->ID == get_current_user_id() ){
 			$this->manage_override = true; //normally, users can't manage a bookiing, only event owners, so we allow them to mod their booking status in this case only.
 		}
-		return $this->set_status(3);
+		return $this->set_status(3, $email);
 	}
 	
 	/**
 	 * Approve a booking.
 	 * @return bool
 	 */
-	function approve(){
-		return $this->set_status(1);
+	function approve($email = true){
+		return $this->set_status(1, $email);
 	}	
 	/**
 	 * Reject a booking and save
 	 * @return bool
 	 */
-	function reject(){
-		return $this->set_status(2);
+	function reject($email = true){
+		return $this->set_status(2, $email);
 	}	
 	/**
 	 * Unpprove a booking.
 	 * @return bool
 	 */
-	function unapprove(){
-		return $this->set_status(0);
+	function unapprove($email = true){
+		return $this->set_status(0, $email);
 	}
 	
 	/**
@@ -453,7 +454,7 @@ class EM_Booking extends EM_Object{
 	 * @param int $status
 	 * @return boolean
 	 */
-	function set_status($status){
+	function set_status($status, $email = true){
 		global $wpdb;
 		$action_string = strtolower($this->status_array[$status]); 
 		//if we're approving we can't approve a booking if spaces are full, so check before it's approved.
@@ -468,14 +469,16 @@ class EM_Booking extends EM_Object{
 		$result = $wpdb->query($wpdb->prepare('UPDATE '.EM_BOOKINGS_TABLE.' SET booking_status=%d WHERE booking_id=%d', array($status, $this->booking_id)));
 		if($result !== false){
 			$this->feedback_message = sprintf(__('Booking %s.','dbem'), $action_string);
-			if( !($this->booking_status == 0 && $this->previous_status > 0) || $this->previous_status == 4 ){
-				if( $this->email() ){
-					$this->feedback_message .= " ".__('Mail Sent.','dbem');
-				}elseif( $this->previous_status == 0 ){
-					//extra errors may be logged by email() in EM_Object
-					$this->feedback_message .= ' <span style="color:red">'.__('ERROR : Mail Not Sent.','dbem').'</span>';
-					$this->add_error(__('ERROR : Mail Not Sent.','dbem'));
-					$result =  false;
+			if( $email ){
+				if(!($this->booking_status == 0 && $this->previous_status > 0) || $this->previous_status == 4 ){
+					if( $this->email() ){
+						$this->feedback_message .= " ".__('Mail Sent.','dbem');
+					}elseif( $this->previous_status == 0 ){
+						//extra errors may be logged by email() in EM_Object
+						$this->feedback_message .= ' <span style="color:red">'.__('ERROR : Mail Not Sent.','dbem').'</span>';
+						$this->add_error(__('ERROR : Mail Not Sent.','dbem'));
+						$result =  false;
+					}
 				}
 			}
 		}else{
@@ -614,36 +617,43 @@ class EM_Booking extends EM_Object{
 				return true;
 			}
 			
-			$booker_subject = $this->output($booker_subject, 'email');
-			$booker_body = $this->output($booker_body, 'email');
-			if( get_option('dbem_smtp_html') ){
-				$booker_body = nl2br($booker_body);
-			}
-			//Send to the person booking
-			if( !$this->email_send( $booker_subject,$booker_body, $this->get_person()->user_email) ){
-				return false;
+			if( !empty($booker_subject) ){
+				$booker_subject = $this->output($booker_subject, 'email');
+				$booker_body = $this->output($booker_body, 'email');
+				if( get_option('dbem_smtp_html') ){
+					$booker_body = nl2br($booker_body);
+				}
+				//Send to the person booking
+				if( !$this->email_send( $booker_subject,$booker_body, $this->get_person()->user_email) ){
+					return false;
+				}
 			}
 			
-			//Send admin/contact emails
-			if( (get_option('dbem_bookings_approval') == 0 || in_array($this->booking_status, array(0,3,4,5)) || (in_array($this->previous_status, array(4)) && $this->booking_status == 1)) && (get_option('dbem_bookings_contact_email') == 1 || get_option('dbem_bookings_notify_admin') != '') ){
-				//Only gets sent if this is a pending booking, unless approvals are disabled.
-				$contact_subject = $this->output($contact_subject, 'email');
-				$contact_body = $this->output($contact_body, 'email'); 
-				if( get_option('dbem_smtp_html') ){
-					$contact_body = nl2br($contact_body);
-				}
-				
-				if( get_option('dbem_bookings_contact_email') == 1 ){
-					if( !$this->email_send( $contact_subject, $contact_body, $EM_Event->get_contact()->user_email) && current_user_can('activate_plugins')){
-						$this->errors[] = __('Confirmation email could not be sent to contact person. Registrant should have gotten their email (only admin see this warning).','dbem');
-						return false;
+			if( !empty($contact_subject) ){
+				//Send admin/contact emails
+				$is_pending_approval = (get_option('dbem_bookings_approval') && in_array($this->booking_status, array(0,3,4,5)) || in_array($this->booking_status, array(3,4,5)));
+				$is_auto_approved = !get_option('dbem_bookings_approval') && $this->booking_status == 1 && !$this->previous_status; 
+				$is_auto_paid = (in_array($this->previous_status, array(4)) && $this->booking_status == 1);
+				if( ($is_pending_approval || $is_auto_approved || $is_auto_paid) && (get_option('dbem_bookings_contact_email') == 1 || get_option('dbem_bookings_notify_admin') != '') ){
+					//Only gets sent if this is a pending booking, unless approvals are disabled.
+					$contact_subject = $this->output($contact_subject, 'email');
+					$contact_body = $this->output($contact_body, 'email'); 
+					if( get_option('dbem_smtp_html') ){
+						$contact_body = nl2br($contact_body);
 					}
-				}
-		
-				if( get_option('dbem_bookings_notify_admin') != '' && preg_match('/^[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,3}$/', get_option('dbem_bookings_notify_admin')) ){
-					if( !$this->email_send( $contact_subject, $contact_body, get_option('dbem_bookings_notify_admin')) ){
-						$this->errors[] = __('Confirmation email could not be sent to admin. Registrant should have gotten their email (only admin see this warning).','dbem');
-						return false;
+					
+					if( get_option('dbem_bookings_contact_email') == 1 ){
+						if( !$this->email_send( $contact_subject, $contact_body, $EM_Event->get_contact()->user_email) && current_user_can('activate_plugins')){
+							$this->errors[] = __('Confirmation email could not be sent to contact person. Registrant should have gotten their email (only admin see this warning).','dbem');
+							return false;
+						}
+					}
+			
+					if( get_option('dbem_bookings_notify_admin') != '' && preg_match('/^[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,3}$/', get_option('dbem_bookings_notify_admin')) ){
+						if( !$this->email_send( $contact_subject, $contact_body, get_option('dbem_bookings_notify_admin')) ){
+							$this->errors[] = __('Confirmation email could not be sent to admin. Registrant should have gotten their email (only admin see this warning).','dbem');
+							return false;
+						}
 					}
 				}
 			}
