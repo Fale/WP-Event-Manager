@@ -235,7 +235,7 @@ class EM_Events extends EM_Object implements Iterator {
 	}
 	
 	function get_post_search($args = array()){
-		if( !empty($args['em_search']) && empty($args['search']) ) $args['search'] = $args['em_search'];
+		if( !empty($_REQUEST['em_search']) && empty($args['search']) ) $_REQUEST['search'] = $_REQUEST['em_search'];
 		$accepted_searches = apply_filters('em_accepted_searches', array('scope','search','category','country','state','region','town'), $args);
 		foreach($_REQUEST as $post_key => $post_value){
 			if( in_array($post_key, $accepted_searches) && !empty($post_value) ){
@@ -266,12 +266,12 @@ class EM_Events extends EM_Object implements Iterator {
 			$conditions['status'] = "(`event_status` IS NOT NULL )"; //by default, we don't show deleted items
 		}
 		//private events
-		if( !empty($args['private']) ){
+		if( empty($args['private']) ){
 			$conditions['private'] = "(`event_private`=0)";			
 		}elseif( !empty($args['private_only']) ){
 			$conditions['private_only'] = "(`event_private`=1)";
 		}
-		if( is_multisite() && array_key_exists('blog',$args) && is_numeric($args['blog']) ){
+		if( EM_MS_GLOBAL && array_key_exists('blog',$args) && is_numeric($args['blog']) ){
 			if( is_main_site($args['blog']) ){
 				$conditions['blog'] = "(".EM_EVENTS_TABLE.".blog_id={$args['blog']} OR ".EM_EVENTS_TABLE.".blog_id IS NULL)";
 			}else{
@@ -325,11 +325,11 @@ class EM_Events extends EM_Object implements Iterator {
 			'country' => false,
 			'region' => false,
 			'blog' => get_current_blog_id(),
-			'private' => !current_user_can('read_private_events'),
+			'private' => current_user_can('read_private_events'),
 			'private_only' => false,
 			'post_id' => false
 		);
-		if(is_multisite()){
+		if(EM_MS_GLOBAL){
 			global $bp;
 			if( !is_main_site() && !array_key_exists('blog', $array) ){
 				$array['blog'] = get_current_blog_id();

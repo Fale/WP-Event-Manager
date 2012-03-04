@@ -50,7 +50,7 @@ class EM_Event extends EM_Object{
 	var $event_end_date;
 	var $post_content;
 	var $event_rsvp;
-	//var $spaces;
+	var $event_spaces;
 	var $location_id;
 	var $recurrence_id;
 	var $event_status;
@@ -87,7 +87,7 @@ class EM_Event extends EM_Object{
 		'event_end_date' => array( 'name'=>'end_date', 'type'=>'%s', 'null'=>true ),
 		'post_content' => array( 'name'=>'notes', 'type'=>'%s', 'null'=>true ),
 		'event_rsvp' => array( 'name'=>'rsvp', 'type'=>'%d', 'null'=>true ), //has a default, so can be null/excluded
-		//'event_spaces' => array( 'name'=>'spaces', 'type'=>'%d' ),
+		'event_spaces' => array( 'name'=>'spaces', 'type'=>'%d', 'null'=>true),
 		'location_id' => array( 'name'=>'location_id', 'type'=>'%d', 'null'=>true ),
 		'recurrence_id' => array( 'name'=>'recurrence_id', 'type'=>'%d', 'null'=>true ),
 		'event_status' => array( 'name'=>'status', 'type'=>'%d', 'null'=>true ),
@@ -375,6 +375,7 @@ class EM_Event extends EM_Object{
 		if( !empty($_REQUEST['event_rsvp']) && $_REQUEST['event_rsvp'] ){
 			$this->get_bookings()->get_tickets()->get_post();
 			$this->event_rsvp = 1;
+			$this->event_spaces = (!empty($_REQUEST['event_spaces'])) ? absint($_REQUEST['event_spaces']):0;
 		}else{
 			$this->event_rsvp = 0;
 		}
@@ -568,8 +569,8 @@ class EM_Event extends EM_Object{
 					}
 				}
 			}
-			update_post_meta($this->post_id, '_start_ts', strtotime($this->event_start_date));
-			update_post_meta($this->post_id, '_end_ts', strtotime($this->event_end_date));
+			update_post_meta($this->post_id, '_start_ts', $this->start);
+			update_post_meta($this->post_id, '_end_ts', $this->end);
 			
 			$result = count($this->errors) == 0;
 			$this->get_status();
@@ -579,7 +580,11 @@ class EM_Event extends EM_Object{
 			unset($event_array['event_id']);
 			if( $this->post_status == 'private' ) $event_array['event_private'] = 1;
 			$event_array['event_attributes'] = serialize($this->event_attributes); //might as well
-			$event_truly_exists = $wpdb->get_var('SELECT event_id FROM '.EM_EVENTS_TABLE." WHERE event_id={$this->event_id}") == $this->event_id;
+			if( !empty($this->event_id) ){
+				$event_truly_exists = $wpdb->get_var('SELECT event_id FROM '.EM_EVENTS_TABLE." WHERE event_id={$this->event_id}") == $this->event_id;
+			}else{
+				$event_truly_exists = false;
+			}
 			if( empty($this->event_id) || !$event_truly_exists ){
 				$this->previous_status = 0; //for sure this was previously status 0
 				$this->event_date_created = current_time('mysql');
@@ -591,13 +596,19 @@ class EM_Event extends EM_Object{
 					update_post_meta($this->post_id, '_event_id', $this->event_id);
 					$this->feedback_message = sprintf(__('Successfully saved %s','dbem'),__('Event','dbem'));
 					$just_added_event = true; //make an easy hook
+					do_action('em_event_save_new', $this);
 				}
 			}else{
 				$this->previous_status = $this->get_previous_status();
-				$this->event_date_modified = current_time('mysql');
+				$this->event_date_modified = $event_array['event_date_modified'] = current_time('mysql');
 				if ( $wpdb->update(EM_EVENTS_TABLE, $event_array, array('event_id'=>$this->event_id) ) === false ){
 					$this->add_error( sprintf(__('Something went wrong updating your %s to the index table. Please inform a site administrator about this.','dbem'),__('event','dbem')));			
 				}else{
+					//Also set the status here if status != previous status
+					if( $this->previous_status != $this->get_status()){
+						$status_value = $this->get_status(true);
+						$wpdb->query('UPDATE '.EM_EVENTS_TABLE." SET event_status=$status_value WHERE event_id=".$this->event_id);
+					}
 					$this->feedback_message = sprintf(__('Successfully saved %s','dbem'),__('Event','dbem'));
 				}		
 			}
@@ -965,9 +976,8 @@ class EM_Event extends EM_Object{
 	
 	function is_free(){
 		$free = true;
-		if( isset($this->free) ) return $this->free;
 		foreach($this->get_tickets() as $EM_Ticket){
-			if( $EM_Ticket->price > 0 ){
+			if( $EM_Ticket->get_price() > 0 ){
 				$free = false;
 			}
 		}
@@ -1027,68 +1037,76 @@ class EM_Event extends EM_Object{
 			$event_string = str_replace($result, $attString ,$event_string );
 		}
 	 	//First let's do some conditional placeholder removals
-		preg_match_all('/\{([a-zA-Z0-9_]+)\}([^{]+)\{\/\1\}/', $event_string, $conditionals);
-		if( count($conditionals[0]) > 0 ){
-			//Check if the language we want exists, if not we take the first language there
-			foreach($conditionals[1] as $key => $condition){
-				$show_condition = false;
-				if ($condition == 'has_bookings') {
-					//check if there's a booking, if not, remove this section of code.
-					$show_condition = ($this->event_rsvp && get_option('dbem_rsvp_enabled'));
-				}elseif ($condition == 'no_bookings') {
-					//check if there's a booking, if not, remove this section of code.
-					$show_condition = (!$this->event_rsvp && get_option('dbem_rsvp_enabled'));
-				}elseif ($condition == 'no_location'){
-					//does this event have a valid location?
-					$show_condition = ( empty($this->location_id) || !$this->get_location()->location_status );
-				}elseif ($condition == 'has_location'){
-					//does this event have a valid location?
-					$show_condition = ( !empty($this->location_id) && $this->get_location()->location_status );
-				}elseif ($condition == 'has_image'){
-					//does this event have an image?
-					$show_condition = ( $this->get_image_url() != '' );
-				}elseif ($condition == 'no_image'){
-					//does this event have an image?
-					$show_condition = ( $this->get_image_url() == '' );
-				}elseif ($condition == 'has_time'){
-					//are the booking times different and not an all-day event
-					$show_condition = ( $this->start != $this->end && !$this->event_all_day );
-				}elseif ($condition == 'no_time'){
-					//are the booking times exactly the same and it's not an all-day event.
-					$show_condition = ( $this->event_start_time == $this->event_end_time && !$this->event_all_day );
-				}elseif ($condition == 'all_day'){
-					//is it an all day event
-					$show_condition = !empty($this->event_all_day);
-				}elseif ($condition == 'logged_in'){
-					//user is logged in
-					$show_condition = is_user_logged_in();
-				}elseif ($condition == 'not_logged_in'){
-					//not logged in
-					$show_condition = !is_user_logged_in();
-				}elseif ($condition == 'has_spaces'){
-					//is it an all day event
-					$show_condition = $this->rsvp && $this->get_bookings()->get_available_spaces() > 0;
-				}elseif ($condition == 'fully_booked'){
-					//is it an all day event
-					$show_condition = $this->rsvp && $this->get_bookings()->get_available_spaces() <= 0;
-				}elseif ($condition == 'is_long'){
-					//is it an all day event
-					$show_condition = $this->event_start_date != $this->event_end_date;
-				}elseif ($condition == 'not_long'){
-					//is it an all day event
-					$show_condition = $this->event_start_date == $this->event_end_date;
+	 	for ($i = 0 ; $i < get_option('dbem_conditional_recursions',1); $i++){ //you can add nested recursions by modifying this setting in your wp_options table
+			preg_match_all('/\{([a-zA-Z0-9_]+)\}(.+?)\{\/\1\}/s', $event_string, $conditionals);
+			if( count($conditionals[0]) > 0 ){
+				//Check if the language we want exists, if not we take the first language there
+				foreach($conditionals[1] as $key => $condition){
+					$show_condition = false;
+					if ($condition == 'has_bookings') {
+						//check if there's a booking, if not, remove this section of code.
+						$show_condition = ($this->event_rsvp && get_option('dbem_rsvp_enabled'));
+					}elseif ($condition == 'no_bookings') {
+						//check if there's a booking, if not, remove this section of code.
+						$show_condition = (!$this->event_rsvp && get_option('dbem_rsvp_enabled'));
+					}elseif ($condition == 'no_location'){
+						//does this event have a valid location?
+						$show_condition = ( empty($this->location_id) || !$this->get_location()->location_status );
+					}elseif ($condition == 'has_location'){
+						//does this event have a valid location?
+						$show_condition = ( !empty($this->location_id) && $this->get_location()->location_status );
+					}elseif ($condition == 'has_image'){
+						//does this event have an image?
+						$show_condition = ( $this->get_image_url() != '' );
+					}elseif ($condition == 'no_image'){
+						//does this event have an image?
+						$show_condition = ( $this->get_image_url() == '' );
+					}elseif ($condition == 'has_time'){
+						//are the booking times different and not an all-day event
+						$show_condition = ( $this->start != $this->end && !$this->event_all_day );
+					}elseif ($condition == 'no_time'){
+						//are the booking times exactly the same and it's not an all-day event.
+						$show_condition = ( $this->event_start_time == $this->event_end_time && !$this->event_all_day );
+					}elseif ($condition == 'all_day'){
+						//is it an all day event
+						$show_condition = !empty($this->event_all_day);
+					}elseif ($condition == 'logged_in'){
+						//user is logged in
+						$show_condition = is_user_logged_in();
+					}elseif ($condition == 'not_logged_in'){
+						//not logged in
+						$show_condition = !is_user_logged_in();
+					}elseif ($condition == 'has_spaces'){
+						//is it an all day event
+						$show_condition = $this->rsvp && $this->get_bookings()->get_available_spaces() > 0;
+					}elseif ($condition == 'fully_booked'){
+						//is it an all day event
+						$show_condition = $this->rsvp && $this->get_bookings()->get_available_spaces() <= 0;
+					}elseif ($condition == 'is_long'){
+						//is it an all day event
+						$show_condition = $this->event_start_date != $this->event_end_date;
+					}elseif ($condition == 'not_long'){
+						//is it an all day event
+						$show_condition = $this->event_start_date == $this->event_end_date;
+					}elseif ($condition == 'is_past'){
+						//if event is past
+						$show_condition = $this->start <= current_time('timestamp');
+					}elseif ($condition == 'is_future'){
+						//if event is upcoming
+						$show_condition = $this->start > current_time('timestamp');
+					}
+					$show_condition = apply_filters('em_event_output_show_condition', $show_condition, $condition, $conditionals[0][$key], $this);
+					if($show_condition){
+						//calculate lengths to delete placeholders
+						$placeholder_length = strlen($condition)+2;
+						$replacement = substr($conditionals[0][$key], $placeholder_length, strlen($conditionals[0][$key])-($placeholder_length *2 +1));
+					}else{
+						$replacement = '';
+					}
+					$event_string = str_replace($conditionals[0][$key], apply_filters('em_event_output_condition', $replacement, $condition, $conditionals[0][$key], $this), $event_string);
 				}
-				$show_condition = apply_filters('em_event_output_show_condition', $show_condition, $condition, $conditionals[0][$key], $this);
-				if($show_condition){
-					//calculate lengths to delete placeholders
-					$placeholder_length = strlen($condition)+2;
-					$replacement = substr($conditionals[0][$key], $placeholder_length, strlen($conditionals[0][$key])-($placeholder_length *2 +1));
-				}else{
-					$replacement = '';
-				}
-				$event_string = str_replace($conditionals[0][$key], apply_filters('em_event_output_condition', $replacement, $condition, $conditionals[0][$key], $this), $event_string);
 			}
-		}
+	 	}
 		//Now let's check out the placeholders.
 	 	preg_match_all("/(#@?_?[A-Za-z0-9]+)({([a-zA-Z0-9,]+)})?/", $format, $placeholders);
 		foreach($placeholders[1] as $key => $result) {
@@ -1231,6 +1249,43 @@ class EM_Event extends EM_Object{
 						$template = em_locate_template('placeholders/bookingbutton.php', true, array('EM_Event'=>$this));
 						$replace = ob_get_clean();
 					}
+					break;
+				case '#_EVENTPRICERANGE':
+					//get the range of prices
+					$min = $max = 0;
+					foreach( $this->get_tickets()->tickets as $EM_Ticket ){
+						if($EM_Ticket->get_price() > $max ){
+							$max = $EM_Ticket->get_price();
+						}
+						if($EM_Ticket->get_price() < $min ){
+							$min = $EM_Ticket->get_price();
+						}						
+					}
+					if( $min != $max ){
+						$replace = em_get_currency_formatted($min).' - '.em_get_currency_formatted($max);
+					}else{
+						$replace = em_get_currency_formatted($min);
+					}
+					break;
+				case '#_EVENTPRICEMIN':
+					//get the range of prices
+					$min = 0;
+					foreach( $this->get_tickets()->tickets as $EM_Ticket ){
+						if( $EM_Ticket->get_price() < $min ){
+							$min = $EM_Ticket->get_price();
+						}						
+					}
+					$replace = em_get_currency_formatted($min);
+					break;
+				case '#_EVENTPRICEMAX':
+					//get the range of prices
+					$max = 0;
+					foreach( $this->get_tickets()->tickets as $EM_Ticket ){
+						if( $EM_Ticket->get_price() > $max ){
+							$max = $EM_Ticket->get_price();
+						}						
+					}
+					$replace = em_get_currency_formatted($max);
 					break;
 				case '#_AVAILABLESEATS': //Depreciated
 				case '#_AVAILABLESPACES':
@@ -1568,14 +1623,11 @@ class EM_Event extends EM_Object{
 				 	}
 			 	}
 			 	//copy the event tags and categories
-			 	$categories = get_the_terms( $this->post_id, EM_TAXONOMY_CATEGORY );
-		 		$cat_slugs = array();
-		 		if( is_array($categories) ){
-					foreach($categories as $category){
-						if( !empty($category->slug) ) $cat_slugs[] = $category->slug; //save of category will soft-fail if slug is empty
-					}
-		 		}
-				$cat_slugs_count = count($cat_slugs);
+			 	$categories = $this->get_categories()->categories;
+				foreach( $categories as $category){
+					if( !empty($category->slug) ) $cat_slugs[] = $category->slug; //save of category will soft-fail if slug is empty
+				}
+				$cat_slugs_count = count($categories);
 			 	$tags = get_the_terms( $this->post_id, EM_TAXONOMY_TAG);
 		 		$tax_slugs = array();
 		 		if( is_array($tags) ){
@@ -1583,15 +1635,32 @@ class EM_Event extends EM_Object{
 						if( !empty($tag->slug) ) $tax_slugs[] = $tag->slug; //save of category will soft-fail if slug is empty
 					}
 		 		}
-				$tax_slugs_count = count($tax_slugs);
+				$tax_slugs_count = count($categories);
 			 	foreach($post_ids as $post_id){
-					if( $cat_slugs_count > 0 ){
+					if( $cat_slugs_count > 0 && !EM_MS_GLOBAL ){
 						wp_set_object_terms($post_id, $cat_slugs, EM_TAXONOMY_CATEGORY);
 					}
 					if( $tax_slugs_count > 0 ){
 						wp_set_object_terms($post_id, $tax_slugs, EM_TAXONOMY_TAG);
 					}
 			 	}
+			 	//featured images
+			 	if( !empty($this->attributes['thumbnail_id']) ){
+			 		foreach($post_ids as $post_ids){
+			 			$image_insert[] = "({$this->post_id}, '_thumbnail_id', {$this->attributes['thumbnail_id']})";
+			 		}
+			 		if( count($image_insert) > 0 ){
+				 		$wpdb->query('INSERT INTO '.$wpdb->postmeta.' (post_id, meta_key, meta_value) VALUES '.implode(', ', $image_inserts));
+			 		}
+			 	}
+			 	//MS Global Categories
+				if( $cat_slugs_count > 0 && EM_MS_GLOBAL ){
+					foreach($categories as $EM_Category){
+						foreach($event_ids as $event_id){
+							$wpdb->insert(EM_META_TABLE, array('meta_value'=>$EM_Category->term_id,'object_id'=>$event_id,'meta_key'=>'event-category'));
+						}
+					}
+				}
 			 	//now, save booking info for each event
 			 	if( $this->event_rsvp ){
 			 		$meta_inserts = array();
@@ -1720,7 +1789,7 @@ class EM_Event extends EM_Object{
 					$matching_month_days = array();
 					//Loop through days of this years month and save matching days to temp array
 					for($day = 1; $day <= $last_day_of_month; $day++){
-						if($current_week_day == $this->recurrence_byday){
+						if((int) $current_week_day == $this->recurrence_byday){
 							$matching_month_days[] = $day;
 						}
 						$current_week_day = ($current_week_day < 6) ? $current_week_day+1 : 0;							
@@ -1834,29 +1903,31 @@ function em_event_output_placeholder($result,$event,$placeholder,$target='html')
 		$result = apply_filters('dbem_notes_excerpt', $result);
 	}elseif( $placeholder == '#_CONTACTEMAIL' && $target == 'html' ){
 		$result = em_ascii_encode($event->get_contact()->user_email);
-	}elseif( $placeholder == "#_EVENTNOTES" || $placeholder == "#_NOTES" || $placeholder == "#_EXCERPT" || $placeholder == "#_LOCATIONEXCERPT" ){
-		if($target == 'html'){
-			$result = apply_filters('dbem_notes', $result);
+	}elseif( in_array($placeholder, array('#_EVENTNOTES','#_NOTES','#_DESCRIPTION','#_LOCATIONNOTES','#_CATEGORYNOTES')) ){
+		if($target == 'rss'){
+			$result = apply_filters('dbem_notes_rss', $result);
+			$result = apply_filters('the_content_rss', $result);
 		}elseif($target == 'map'){
 			$result = apply_filters('dbem_notes_map', $result);
 		}elseif($target == 'ical'){
 			$result = apply_filters('dbem_notes_ical', $result);
 		}else{
-			$result = apply_filters('dbem_notes_rss', $result);
-			$result = apply_filters('the_content_rss', $result);
+			$result = apply_filters('dbem_notes', $result);
 		}
 	}elseif( in_array($placeholder, array("#_NAME",'#_ADDRESS','#_LOCATION','#_TOWN')) ){
-		if ($target == "html"){    
-			$result = apply_filters('dbem_general', $result); 
+		if ($target == "rss"){    
+			$result = apply_filters('dbem_general_rss', $result);
 	  	}elseif ($target == "ical"){    
 			$result = apply_filters('dbem_general_ical', $result); 
 	  	}else{
-			$result = apply_filters('dbem_general_rss', $result);
+			$result = apply_filters('dbem_general', $result); 
 	  	}				
 	}
 	return $result;
 }
+add_filter('em_category_output_placeholder','em_event_output_placeholder',1,4);
 add_filter('em_event_output_placeholder','em_event_output_placeholder',1,4);
+add_filter('em_location_output_placeholder','em_event_output_placeholder',1,4);
 // FILTERS
 // filters for general events field (corresponding to those of  "the _title")
 add_filter('dbem_general', 'wptexturize');

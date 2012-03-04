@@ -126,7 +126,7 @@ class EM_Ticket extends EM_Object{
 		$this->ticket_id = ( !empty($_POST['ticket_id']) ) ? $_POST['ticket_id']:'';
 		$this->event_id = ( !empty($_POST['event_id']) ) ? $_POST['event_id']:'';
 		$this->ticket_name = ( !empty($_POST['ticket_name']) ) ? wp_kses_data(stripslashes($_POST['ticket_name'])):'';
-		$this->ticket_description = ( !empty($_POST['ticket_description']) ) ? wp_kses(stripslashes($_POST['ticket_description'], $allowedposttags)):'';
+		$this->ticket_description = ( !empty($_POST['ticket_description']) ) ? wp_kses(stripslashes($_POST['ticket_description']), $allowedposttags):'';
 		$this->ticket_price = ( !empty($_POST['ticket_price']) ) ? $_POST['ticket_price']:'';
 		$this->ticket_start = ( !empty($_POST['ticket_start']) ) ? $_POST['ticket_start']:'';
 		$this->ticket_end = ( !empty($_POST['ticket_end']) ) ? $_POST['ticket_end']:'';
@@ -290,7 +290,7 @@ class EM_Ticket extends EM_Object{
 		if( $this->is_available() ) {
 			ob_start();
 			?>
-			<select name="em_tickets[<?php echo $this->ticket_id ?>][spaces]" class="em-ticket-select">
+			<select name="em_tickets[<?php echo $this->ticket_id ?>][spaces]" class="em-ticket-select" id="em-ticket-spaces-<?php echo $this->ticket_id ?>">
 				<?php 
 					$min = ($this->ticket_min > 0) ? $this->ticket_min:1;
 					$max = ($this->ticket_max > 0) ? $this->ticket_max:get_option('dbem_bookings_form_max');

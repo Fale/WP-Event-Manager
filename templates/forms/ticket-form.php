@@ -1,5 +1,8 @@
 <?php 
-/* Used in single booking mode, hence the 1 count. This form should have $EM_Ticket available to it. */ 
+/* 
+ * Used in single ticket mode, or if an event has a single ticket and ticket tables aren't forced to be displayed for single tickets, hence the 1 count. 
+ * This form should have $EM_Ticket available to it. 
+ */ 
 $col_count = empty($col_count) ? 1:$col_count;
 ?>
 
@@ -9,7 +12,7 @@ $col_count = empty($col_count) ? 1:$col_count;
 	<div><label><?php _e('Price','dbem') ?></label><input type="text" name="em_tickets[<?php echo $col_count; ?>][ticket_price]" value="<?php echo esc_attr($EM_Ticket->ticket_price) ?>" /></div>
 	<div>
 		<label><?php _e('Spaces','dbem') ?></label><input type="text" name="em_tickets[<?php echo $col_count; ?>][ticket_spaces]" value="<?php echo esc_attr($EM_Ticket->ticket_spaces) ?>" />
-		<a href="#" title="<?php _e('If blank, there\'s no space limit.','dbem'); ?>">?</a>
+		<a href="#" title="<?php __('Enter a maximum number of spaces (required).','dbem'); ?>">?</a>
 	</div>
 	<div class="date-limits">
 		<?php _e('Available from','dbem') ?> 
@@ -32,5 +35,5 @@ $col_count = empty($col_count) ? 1:$col_count;
 		<label><?php _e('Description','dbem') ?></label>
 		<textarea name="em_tickets[<?php echo $col_count; ?>][ticket_description]"><?php echo esc_html(stripslashes($EM_Ticket->ticket_description)) ?></textarea>
 	</div>
-	<?php do_action('em_ticket_edit_form_fields', $col_count); ?>
+	<?php do_action('em_ticket_edit_form_fields', $col_count, $EM_Ticket); //do not delete, add your extra fields this way, remember to save them too! ?>
 </div>	
